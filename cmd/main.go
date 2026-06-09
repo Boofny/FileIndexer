@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+
+import (
+	"github.com/Boofny/FileIndexer/files"
+)
 
 func main() {
-	fmt.Println("Hello word")
+	files.Start()
 }
