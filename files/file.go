@@ -20,30 +20,19 @@ func Start(){
 	}
 	defer file.Close()
 
-	// dir, err := os.ReadDir(tempDir)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// fmt.Println(dir[len(dir)-1].Name())
-
-	// for _, v := range dir{
-	// 	fmt.Println(v.Name(), v.IsDir())
-	// 	if v.IsDir() {
-	// 		fmt.Println(v.Name())
-	// 		dirs, err := os.ReadDir(v.Name())
-	// 		if err != nil {
-	// 			log.Println(err)
-	// 		}
-	// 		if len(dirs) == 0 {
-	// 			continue
-	// 		}
-	// 		fmt.Println(dirs[0].Name())
-	// 	}
-	// }
 	tree := NewFileTree(tempDir)
 	tree.BuildTree(tempDir)
-	fmt.Print("Root: ", tree.Name)
+	for _, v := range tree.Children {
+		fmt.Println("Directory children: ", v.Name)
+	}
+
+	for _, i := range tree.Children[2].Files{
+		fmt.Println(tree.Children[0].Name)
+		fmt.Print("Name: ")
+		fmt.Println(i.Name)
+	}
+
+	fmt.Print("Root: ", tree.Files[0].Name)
 }
 
 

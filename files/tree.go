@@ -3,6 +3,7 @@ package files
 import (
 	"log"
 	"os"
+	"path/filepath"
 )
 
 const banned = "node_modules"
@@ -20,7 +21,7 @@ type Directory struct{
 	Files []File 	// could have many files inside of a dir
 	Name string 	// name of the directory
 	// Type string 	// type of dir like . or not
-	Childrean []*Directory
+	Children  []*Directory
 }
 
 func NewFileTree(rootName string)Directory{
@@ -36,24 +37,55 @@ func (d *Directory)BuildTree(dirName string)Directory{
 		// return Directory{} // for error purposes
 	}
 
-	for _, v := range dir{
-		if v.IsDir() && !IsDotDir(v.Name()) && v.Name() != banned{
-			// fmt.Print(v.Name())
-			d.Childrean = append(d.Childrean, &Directory{Name: v.Name()})
+	for _, v := range dir{ // for now this is JUST getting the other dirs
+		if !v.IsDir(){ // then the v is a file will add the 
+			filePath := GetFilePath(v.Name())
+			size, err := os.Stat(v.Name())
+			if err != nil {
+				return Directory{}
+			}
+			d.Files = append(d.Files, File{
+				Name: v.Name(), // hope this works
+				Type: filepath.Ext(v.Name()),
+				Path: filePath,
+				Size: int32(size.Size()),
+				IsBin: false, // just for now
+				Content: nil,	 // also just for now
+			})
+
+		}else if v.IsDir() && !IsDotDir(v.Name()) && v.Name() != banned{
+
+			d.Children = append(d.Children, &Directory{Name: v.Name(), Files: d.Files}) // is just sending the same children from the main dir ./
 			d.BuildTree(v.Name())
-		}else{ // then the v is a file will add the 
-			d.Files = append(d.Files, addChildren(v)...)
 		}
 	}
 	return *d // idk if this will work
 }
 
-func (d *Directory)IndexChildren(){
-
+func GetFilePath(fileName string)string{
+	filePath, err := filepath.Abs(fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return filePath
 }
 
-// addChildren thinking or returning the file Childrean non dirs
+func GetFileSize(fileName string)int32{
+	size, err := os.Stat(fileName)
+	if err != nil {
+		panic(err)
+	}
+	return int32(size.Size())
+}
+
+// addChildren thinking or returning the file children  non dirs
 func addChildren(dir os.DirEntry)[]File{
+	// var file []File
+	// for _, v := range dir{
+	// 	file = append(file, File{
+	// 		Name: v,
+	// 	})
+	// }
 	return nil 
 }
 
