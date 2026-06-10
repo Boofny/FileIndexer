@@ -14,6 +14,7 @@ func (d *Directory)PrintDirTree(indent string){
 
 func PrintFilesInDir(dir Directory, indent string){
 	for _, v := range dir.Files{
-		fmt.Println(" " + indent + v.Name)
+		fmt.Printf(" %s %s %s %s %d\n", indent, v.Name, v.Type, v.Path, v.Size)
+		// fmt.Print(" " + indent + v.Name + string(v.Size))
 	}
 }
