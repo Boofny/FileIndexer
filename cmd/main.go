@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/Boofny/FileIndexer/files"
+	"github.com/Boofny/FileIndexer/indexer"
 )
 
 func main() {
-	files.Start()
+	indexer.Start()
 }

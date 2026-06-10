@@ -1,6 +1,7 @@
-package files
+package indexer
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -39,24 +40,27 @@ func (d *Directory)BuildTree(dirName string)Directory{
 
 	for _, v := range dir{ // for now this is JUST getting the other dirs
 		if !v.IsDir(){ // then the v is a file will add the 
-			filePath := GetFilePath(v.Name())
-			size, err := os.Stat(v.Name())
-			if err != nil {
-				return Directory{}
-			}
+			filePath := filepath.Join(dirName, v.Name())
+
+			size := GetFileSize(filePath)
+
 			d.Files = append(d.Files, File{
 				Name: v.Name(), // hope this works
 				Type: filepath.Ext(v.Name()),
 				Path: filePath,
-				Size: int32(size.Size()),
+				Size: size, 
 				IsBin: false, // just for now
 				Content: nil,	 // also just for now
 			})
 
 		}else if v.IsDir() && !IsDotDir(v.Name()) && v.Name() != banned{
-
-			d.Children = append(d.Children, &Directory{Name: v.Name(), Files: d.Files}) // is just sending the same children from the main dir ./
-			d.BuildTree(v.Name())
+			childDir := filepath.Join(dirName, v.Name())
+			child := &Directory{
+				Name: v.Name(),
+			}
+			// d.Children = append(d.Children, &Directory{Name: v.Name(), Files: d.Files}) // is just sending the same children from the main dir ./
+			d.Children = append(d.Children, child)
+			child.BuildTree(childDir)
 		}
 	}
 	return *d // idk if this will work
@@ -73,23 +77,16 @@ func GetFilePath(fileName string)string{
 func GetFileSize(fileName string)int32{
 	size, err := os.Stat(fileName)
 	if err != nil {
+		fmt.Println("herer again")
+		fmt.Println(err)
 		panic(err)
 	}
 	return int32(size.Size())
-}
-
-// addChildren thinking or returning the file children  non dirs
-func addChildren(dir os.DirEntry)[]File{
-	// var file []File
-	// for _, v := range dir{
-	// 	file = append(file, File{
-	// 		Name: v,
-	// 	})
-	// }
-	return nil 
 }
 
 // IsDotDir used to check that we dont go into .git or somthing else
 func IsDotDir(dirName string)bool{
 	return dirName[0] == '.'
 }
+
+
