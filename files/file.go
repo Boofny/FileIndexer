@@ -1,25 +1,11 @@
 // Package files will be the starting point from where this file indexer will start and grow
 package files
 
+// TODO: For now the first thing is to build the file tree using recursion and then go routines 
 import (
 	"fmt"
-	"log"
 	"os"
 )
-
-type File struct{
-	Name 		string // name of the file
-	Type 		string // .txt .go etc...
-	Size 		int32
-	Content []byte // used for later searching
-	IsBin 	bool // checking for binaray files for not allowing them to be open
-}
-
-type Directory struct{
-	Files []File // could have many files inside of a dir
-	Name string // name of the directory
-	Childrean []*Directory
-}
 
 const tempDir = "./"
 
@@ -28,30 +14,38 @@ const tempDir = "./"
 // Start just the entry point for the code
 func Start(){
 	dirfs := os.DirFS(tempDir) // may want to have this for the future 
-	file, err := dirfs.Open("go.mod")
+	file, err := dirfs.Open("cmd")
 	if err != nil {
 		return 
 	}
 	defer file.Close()
 
-	// buf := make([]byte, 128)
+	// dir, err := os.ReadDir(tempDir)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	// fmt.Println(file.Read(buf))
-	// fmt.Println(string(buf))
+	// fmt.Println(dir[len(dir)-1].Name())
 
-	err = os.Chdir(tempDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-	dir, err := os.ReadDir(tempDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(dir[len(dir)-1].Name())
-	for _, v := range dir{
-		fmt.Println(v.Name(), v.IsDir())
-		if v.Name()[0] == '.'{ // using this bear bones way to check dot dirs
-			break
-		}
-	}
+	// for _, v := range dir{
+	// 	fmt.Println(v.Name(), v.IsDir())
+	// 	if v.IsDir() {
+	// 		fmt.Println(v.Name())
+	// 		dirs, err := os.ReadDir(v.Name())
+	// 		if err != nil {
+	// 			log.Println(err)
+	// 		}
+	// 		if len(dirs) == 0 {
+	// 			continue
+	// 		}
+	// 		fmt.Println(dirs[0].Name())
+	// 	}
+	// }
+	tree := NewFileTree(tempDir)
+	tree.BuildTree(tempDir)
+	fmt.Print("Root: ", tree.Name)
 }
+
+
+
+
